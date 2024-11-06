@@ -102,6 +102,7 @@ async function fetchBibleVerse(ourVerse) {
     // Function to fetch all of the URLs in parallel
     const fetchURLs = async (urls) => {
         try {
+            document.getElementById("loadingDiv").style.display = "flex";
             const promises = urls.map(url => fetch(url));
             
             // Wait for all of the promises to resolve
@@ -109,29 +110,37 @@ async function fetchBibleVerse(ourVerse) {
             
             // Extract JSON data from responses and access the `text` property
             const data = await Promise.all(responses.map(async (response) => {
+                document.getElementById("loadingDiv").style.display = "none";
                 const json = await response.json();
                 return json; // Access the `text` property
             }));
             
             return data;
         } catch (error) {
+            document.getElementById("loadingDiv").style.display = "none";
+            document.getElementById("errorAlert").style.display = "flex";
+            document.getElementById("errorOutput").innerHTML = `${error}`;
+
+            setTimeout(() => {
+                document.getElementById("errorAlert").style.display = "none";
+                console.clear();
+            }, 10000);
             throw new Error(`Failed to fetch data: ${error}`);
         }
     };
 
     fetchURLs(urlsToFetch)
         .then(data => {
-            // console.log("this is the json data: ", "-----------------------------", data[0].text, "------------------------------------", "here's the end of it!!!!");
             const russVerse = data[0].text;
             const engVerse = data[1].text;
-            displayRussVerse(russVerse, engVerse);
+            displayVerseData(russVerse, engVerse);
         })
         .catch(error => {
             console.error('Error fetching data:', error);
         });
 }
 
-function displayRussVerse(russData, engData) {
+function displayVerseData(russData, engData) {
     const russianVerseContainer = document.getElementById('russian-verse-container');
     const englishVerseContainer = document.getElementById('english-verse-container');
     russianVerseContainer.innerHTML = russData;
@@ -179,6 +188,89 @@ function setBackgroundImage() {
     backgroundDiv.style.backgroundImage = `url('${folderPath}${randomImage}')`;
 }
 
+
+
+/**----------------------------------------------------MENU SECTION-------------------------------------------------------- */
+
+const menu = document.getElementById("menu");
+const menuButton = document.getElementById("menuButton");
+
+menuButton.addEventListener("click", function() {
+    if (menu.classList.contains('hidden')) {
+        menu.style.display = 'flex'; // Show the element first
+        setTimeout(() => { // Wait for the element to be displayed
+          menu.classList.remove('hidden'); // Start the opacity transition
+        }, 0);
+      } else {
+        menu.classList.add('hidden'); // Trigger opacity transition
+        setTimeout(() => { // Wait for the transition to complete
+          menu.style.display = 'none'; // Hide the element
+        }, 500); // Adjust the timeout to match the transition duration
+      }
+});
+
+
+
+/*------------------------------------------------------FORM SECTION-------------------------------------------------------- */
+
+const form = document.getElementById("form");
+
+form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const russianLabel = document.getElementById("russianLabel");
+    const englishLabel = document.getElementById("englishLabel");
+    const locationLabel = document.getElementById("locationLabel");
+
+    addCustomVerse(russianLabel.value, englishLabel.value, locationLabel.value);
+    menu.style.display = 'none';
+})
+
+function addCustomVerse(russLabel, engLabel, locLabel) {
+    var russData;
+    var engData;
+    displayVerseName(russLabel, engLabel);
+    fetchBibleVerse(locLabel);
+    displayVerseData(russData, engData);
+}
+
+function populateBibleBooks() {
+    const bibleBookList = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
+    const bibleBooks = document.getElementById("bibleBooks");
+
+    bibleBookList.forEach(name => {
+        const listItem = document.createElement("li"); // Create a new list item
+        listItem.textContent = name;                   // Set the text to the current name
+        bibleBooks.appendChild(listItem);                // Add the list item to the UL
+    });
+}
+
+// function throwError(err) {
+//     switch(err) {
+//         case "offline":
+//             if (navigator.online = false) {
+//                 document.getElementById("loadingDiv").style.display = "none";
+//                 document.getElementById("errorAlert").style.display = "flex";
+//                 document.getElementById("errorOutput").innerHTML = `${ErrorEvent}`;
+//             } else {
+//                 document.getElementById("errorAlert").style.display = "none";
+//                 console.clear();
+//             }
+//             break;
+        // case "badInput":
+        //     document.getElementById("loadingDiv").style.display = "none";
+        //     document.getElementById("errorAlert").style.display = "flex";
+        //     document.getElementById("errorOutput").innerHTML = `${err}`;
+
+        //     setTimeout(() => {
+        //         document.getElementById("errorAlert").style.display = "none";
+        //         console.clear();
+        //     }, 10000);
+        //     break;
+//     }
+// }
+
+
 /** DEFINE THE MAIN FUNCTION */
 
 function main() {
@@ -187,6 +279,8 @@ function main() {
     const randomVerse = getRandomVerse();
     fetchBibleVerse(randomVerse.verseLoc);
     displayVerseName(randomVerse.russVerseName, randomVerse.engVerseName);
+
+    populateBibleBooks();
 };
 
 main();
