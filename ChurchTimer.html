@@ -4,7 +4,8 @@
     <link rel="stylesheet" href="./css/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=Dela+Gothic+One&family=Geologica:wght@100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">  </head>
+    <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=Dela+Gothic+One&family=Geologica:wght@100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+  </head>
   <body id="main-container">
     <div id="sub-container">
       <div id="timer-container">
@@ -17,6 +18,28 @@
         <br>
         <div id="russian-verse-container"></div>
         <div id="russian-verse-name-container"></div>
+      </div>
+      <div id="menu" class="hidden">
+        <ol id="bibleBooks"></ol>
+        <form id="form">
+          <h2>Use Custom Verse</h2>
+          <label for="russianLabel">Russian Name:</label><br>
+          <input type="text" id="russianLabel" name="russianLabel" placeholder="example: Бытие 1:1" required><br>
+          <label for="englishLabel">English Name:</label><br>
+          <input type="text" id="englishLabel" name="englishLabel" placeholder="example: Genesis 1:1" required><br>
+          <label for="locationLabel">Bible Location:</label><br>
+          <input type="text" id="locationLabel" name="locationLabel" placeholder="book#/chapter#/verse#/ example: 1/1/1/" required><br><br>
+          <input id="submitButton" type="submit" value="REPLACE">
+        </form>
+      </div>
+      <button id="menuButton">Menu</button>
+      <div id="loadingDiv"><div class="loader"></div></div>
+      <div id="errorAlert">
+        <div id="stopSignImg">
+          <h2>THIS INPUT CANNOT BE PROCESSED!!! <br>PLEASE TRY AGAIN</h2>
+          <p>CHECK YOUR:<br>internet connection <br>input format <br>validity of the Bible place</p>
+          <p id="errorOutput"></p>
+        </div>
       </div>
     </div>
   </body>
