@@ -197,6 +197,7 @@ const menuButton = document.getElementById("menuButton");
 
 menuButton.addEventListener("click", function() {
     if (menu.classList.contains('hidden')) {
+        randomColor();
         menu.style.display = 'flex'; // Show the element first
         setTimeout(() => { // Wait for the element to be displayed
           menu.classList.remove('hidden'); // Start the opacity transition
@@ -270,6 +271,18 @@ function populateBibleBooks() {
 //     }
 // }
 
+
+function randomColor() {
+    const letters = "0123456789ABCDEF";
+    const menuColor = document.getElementById("menu");
+
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+
+    return menuColor.style["box-shadow"] = `0 0 5vh ${color}`;
+}
 
 /** DEFINE THE MAIN FUNCTION */
 
