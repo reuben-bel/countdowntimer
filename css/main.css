@@ -1,39 +1,77 @@
 * {
     padding: 0;
     margin: 0;
-    font-family: "Protest Strike", sans-serif;
-    font-weight: 400;
+    font-family: "Geologica", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
     font-style: normal;
+    font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0,
+    "SHRP" 0;
     color: #ffffff;
-    text-shadow: 2px 4px 5px black;
+    text-shadow: 4px 3px 4px black;
 }
 
 #main-container {
+    display: grid;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    backdrop-filter: brightness(0.6);
+}
+
+#sub-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    width: 100vw;
-    height: 100vh;
 }
 
 #timer-container {
+    font-size: 2vh;
+    display: inline-table;
+    padding: 3vh;
+}
+
+h1 {
+    display: flex;
+    align-items: flex-end;
     text-align: center;
-    color: #ffffff;
-    font-size: 40vh;
+    font-size: 6vh;
+}
+
+#countdown {
+    text-align: center;
+    font-size: 12vh;
+    width: 100%;
 }
 
 #verse-container {
-    padding: 15px;
-    margin: 15px;
-    text-align: center;
-    font-size: 7vh;
-    color: #ffffff;
+    font-size: 4vh;
+    border: 5px solid white;
+    backdrop-filter: brightness(0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;      
+    justify-content: center;
+    box-sizing: border-box;
+    margin: 0 5vh 0 5vh;
+    padding: 0 3vh 3vh 3vh;
 }
 
-h2 {
+#russian-verse-container, #english-verse-container {
+    text-align: center;
     font-size: 5vh;
+    margin: 3vh 0 3vh 0;
+
+}
+
+#russian-verse-name-container, #english-verse-name-container {
+    text-align: center;
+    padding-bottom: 1vh;
+    border: solid 5px #fff;
+    border-color: transparent transparent #fff transparent;
+    border-radius: 100px 0 50%/100px -100px;
 }

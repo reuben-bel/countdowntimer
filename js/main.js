@@ -1,79 +1,151 @@
 /** CREATE A TIMER */
 
-function countdown( elementName, minutes, seconds )
-{
-    var element, endTime, hours, mins, msLeft, time;
+const data = { username: 'example' };
 
-    function twoDigits( n )
-    {
-        return (n <= 9 ? "0" + n : n);
+function getNextSundayAtTen() {
+    const now = new Date();
+    const nextSunday = new Date(now);
+
+    // Set to 10:00 am
+    nextSunday.setHours(10, 0, 0, 0);
+
+    // Calculate days to Sunday
+    const dayOfWeek = nextSunday.getDay();
+    const daysUntilSunday = (7 - dayOfWeek) % 7;
+
+    // If today is Sunday and it's past 10:00 am, set for the next week
+    if (dayOfWeek === 0 && now.getHours() >= 10) {
+        nextSunday.setDate(nextSunday.getDate() + 7);
+    } else {
+        nextSunday.setDate(nextSunday.getDate() + daysUntilSunday);
     }
 
-    function updateTimer()
-    {
-        msLeft = endTime - (+new Date);
-        if ( msLeft < 1000 ) {
-            element.innerHTML = "Church Time!";
-        } else {
-            time = new Date( msLeft );
-            hours = time.getUTCHours();
-            mins = time.getUTCMinutes();
-            element.innerHTML = (hours ? hours + ':' + twoDigits( mins ) : mins) + ':' + twoDigits( time.getUTCSeconds() );
-            setTimeout( updateTimer, time.getUTCMilliseconds() + 500 );
-        }
-    }
-
-    element = document.getElementById( elementName );
-    endTime = (+new Date) + 1000 * (60*minutes + seconds) + 500;
-    updateTimer();
+    return nextSunday;
 }
+
+function startCountdown() {
+    const targetTime = getNextSundayAtTen();
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetTime - now;
+
+        if (distance < 0) {
+            document.getElementById("countdown").innerHTML = "Are you quiet? <br> It's church time!";
+            document.getElementById("intro").remove();
+            document.getElementById("verse-container").remove();
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        let countdownText = "";
+
+        // Calculate time components
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Add components to countdown text only if they are non-zero
+        if (days > 0) {
+            countdownText += days + "d ";
+        }
+        if (hours > 0 || days > 0) {  // Include hours if days are non-zero
+            countdownText += hours + "h ";
+        }
+        if (minutes > 0 || hours > 0 || days > 0) {  // Include minutes if hours or days are non-zero
+            countdownText += minutes + "m ";
+        }
+
+        countdownText += seconds + "s";  // Always show seconds
+
+        document.getElementById("countdown").innerHTML = countdownText;
+    }
+
+    const countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+
 
 /** SELECT A RANDOM VERSE FROM THIS LIST AND DISPLAY IT */
 
 const verses = [
-    "John+3:16",
-    "Romans+8:28",
-    "Philippians+4:13",
-    "Proverbs+3:5",
-    "Philippians+4:6",
-    "Proverbs+3:6",
-    "Psalms+46:1",
-    "Matthew+6:33",
-    "Deuteronomy+31:6",
-    "Hebrews+13:5",
-    "Romans+6:23"
+    {russName: "От Иоанна 16:33", engName: "John 16:33", location: "43/16/33/"},
+    {russName: "1 Коринфянам 13:13", engName: "1 Corinthians 13:13", location: "46/13/13/"},
+    {russName: "К Римлянам 15:13", engName: "Romans 15:13", location: "45/15/13/"},
+    {russName: "Исаия 41:13", engName: "Isaiah 41:13", location: "23/41/13/"},
+    {russName: "К Римлянам 8:28", engName: "Romans 8:28", location: "45/8/28/"},
+    {russName: "Филиппийцам 4:13", engName: "Philippians 4:13", location: "50/4/13/"},
+    {russName: "Исаия 41:10", engName: "Isaiah 41:10", location: "23/41/10/"},
+    {russName: "От Марка 11:24", engName: "Mark 11:24", location: "41/11/24/"},
+    {russName: "1 Коринфянам 15:58", engName: "1 Corinthians 15:58", location: "46/15/58/"},
+    {russName: "От Матфея 11:28", engName: "Matthew 11:28", location: "40/11/28/"}
 ];
 
-function getRandomVerse(verses) {
+function getRandomVerse() {
     const randomIndex = Math.floor(Math.random() * verses.length);
-    return verses[randomIndex];
+    const selectedVerse = verses[randomIndex];
+    var russVerseName = selectedVerse.russName;
+    var engVerseName = selectedVerse.engName;
+    var verseLoc = selectedVerse.location;
+    return {russVerseName, engVerseName, verseLoc};
 }
 
+
+/****************************************************************** */
 async function fetchBibleVerse(ourVerse) {
-    const url = `https://bible-api.com/${ourVerse}?translation=web`;
-
-    try {
-        // Make the HTTP request
-        const response = await fetch(url);
+    const urlsToFetch = [
+        `https://bolls.life/get-verse/SYNOD/${ourVerse}`,
+        `https://bolls.life/get-verse/NASB/${ourVerse}`,
+    ];
         
-        // Check if the response is okay
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+    // Function to fetch all of the URLs in parallel
+    const fetchURLs = async (urls) => {
+        try {
+            const promises = urls.map(url => fetch(url));
+            
+            // Wait for all of the promises to resolve
+            const responses = await Promise.all(promises);
+            
+            // Extract JSON data from responses and access the `text` property
+            const data = await Promise.all(responses.map(async (response) => {
+                const json = await response.json();
+                return json; // Access the `text` property
+            }));
+            
+            return data;
+        } catch (error) {
+            throw new Error(`Failed to fetch data: ${error}`);
         }
-        const data = await response.json();
-        displayVerse(data);
-    } catch (error) {
-        console.error('Error fetching the Bible verse:', error);
-    }
+    };
+
+    fetchURLs(urlsToFetch)
+        .then(data => {
+            // console.log("this is the json data: ", "-----------------------------", data[0].text, "------------------------------------", "here's the end of it!!!!");
+            const russVerse = data[0].text;
+            const engVerse = data[1].text;
+            displayRussVerse(russVerse, engVerse);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
 }
 
-function displayVerse(data) {
-    const verseContainer = document.getElementById('verse-container');
-    verseContainer.innerHTML = `
-        <p>${data.verses[0].text.trim()}</p>
-        <h2>${data.reference}</h2>
-    `;
-};
+function displayRussVerse(russData, engData) {
+    const russianVerseContainer = document.getElementById('russian-verse-container');
+    const englishVerseContainer = document.getElementById('english-verse-container');
+    russianVerseContainer.innerHTML = russData;
+    englishVerseContainer.innerHTML = engData;
+}
+
+function displayVerseName(russName, engName) {
+    const russVerseNameContainer = document.getElementById('russian-verse-name-container');
+    const engVerseNameContainer = document.getElementById('english-verse-name-container');
+    russVerseNameContainer.innerHTML = russName;
+    engVerseNameContainer.innerHTML = engName;
+}
+
+
 
 /* SELECT RANDOM IMAGE FROM FOLDER AND USE IT*/
 const folderPath = "img/";
@@ -110,10 +182,11 @@ function setBackgroundImage() {
 /** DEFINE THE MAIN FUNCTION */
 
 function main() {
-    countdown( "timer-container", 5, 0 );
+    startCountdown();
     window.onload = setBackgroundImage;
-    const randomVerse = getRandomVerse(verses);
-    fetchBibleVerse(randomVerse);
+    const randomVerse = getRandomVerse();
+    fetchBibleVerse(randomVerse.verseLoc);
+    displayVerseName(randomVerse.russVerseName, randomVerse.engVerseName);
 };
 
 main();
